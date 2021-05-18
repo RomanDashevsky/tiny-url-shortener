@@ -486,3 +486,5 @@ Temporary Items
 
 ops-tools/docker/docker-compose.yml
 data/mongo
+
+.env

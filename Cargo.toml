@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 actix-web = "3.3.2"
 mongodb = "2.0.0-beta"
+dotenv = "0.15.0"

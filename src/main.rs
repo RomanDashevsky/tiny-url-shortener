@@ -1,18 +1,12 @@
-use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
+use actix_web::{App, HttpServer};
 use dotenv::dotenv;
 
-pub mod config;
+mod config;
+mod controller;
+
 use crate::config::get_web_service_config;
+use crate::controller::{hello, hello_test};
 
-#[get("/")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[post("/get-shortener-url")]
-async fn hello_test() -> impl Responder {
-    HttpResponse::Ok().body("Hello Test!!!")
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

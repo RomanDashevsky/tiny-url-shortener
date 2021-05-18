@@ -1,6 +1,8 @@
 use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
 use dotenv::dotenv;
-use std::env;
+
+pub mod config;
+use crate::config::get_web_service_config;
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -15,8 +17,8 @@ async fn hello_test() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
-    let host = env::var("HOST").unwrap_or("127.0.0.1".to_string());
-    let port = env::var("PORT").unwrap_or("8080".to_string());
+
+    let (host, port) = get_web_service_config();
 
     HttpServer::new(|| {
         App::new()

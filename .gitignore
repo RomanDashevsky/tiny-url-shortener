@@ -484,3 +484,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+ops-tools/docker/docker-compose.yml
+data/mongo

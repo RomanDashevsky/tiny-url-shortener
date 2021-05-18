@@ -1,0 +1,19 @@
+version: '3.6'
+
+services:
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: 'mongoadmin'
+      MONGO_INITDB_ROOT_PASSWORD: 'tiny-url-shortener'
+      MONGO_INITDB_DATABASE: 'tiny-url-shortener'
+    volumes:
+      - ../../data/mongo:/data/db
+      - ../../data/dump:/dump
+    ports:
+      - '27017:27017'
+    networks:
+      - tiny-url-shortener-net
+
+networks:
+  tiny-url-shortener-net:

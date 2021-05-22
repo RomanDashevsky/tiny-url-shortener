@@ -1,4 +1,4 @@
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, HttpResponse, web};
 use dotenv::dotenv;
 use mongodb::options::ClientOptions;
 use mongodb::{Client, Collection};
@@ -37,6 +37,8 @@ async fn main() -> std::io::Result<()> {
         let service_container = ServiceContainer::new(UrlService::new(url_collection.clone()));
         App::new()
             .data(AppState { service_container })
+            .route("/robots.txt", web::get().to(|| HttpResponse::NotFound()))
+            .route("/favicon.ico", web::get().to(|| HttpResponse::NotFound()))
             .service(index)
             .service(hello_test)
     })

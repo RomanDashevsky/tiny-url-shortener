@@ -47,7 +47,7 @@ async fn main() -> std::io::Result<()> {
 
 async fn get_url_collection() -> Collection {
     let (uri, db_name) = get_mongodb_config();
-    let client_options = ClientOptions::parse(uri).await.unwrap();
+    let client_options = ClientOptions::parse(&uri).await.unwrap();
     let client = Client::with_options(client_options).unwrap();
     let db = client.database(&db_name);
     db.collection("url")

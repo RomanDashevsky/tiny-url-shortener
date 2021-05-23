@@ -6,13 +6,20 @@ pub async fn index(
     app_data: web::Data<crate::AppState>
 ) -> impl Responder {
     let id: String = req.match_info().get("id").unwrap().parse().unwrap();
-    let result = app_data.service_container.url.create(&"/sadhgfh").await;
-    HttpResponse::Ok().body(format!("Hello from index {0}, {1}", id, result.unwrap().inserted_id))
+    let result = app_data.service_container.url.get(&id).await;
+    match result {
+        Ok(document) => {
+            if document.is_none() {
+                return HttpResponse::NotFound().finish()
+            }
+            HttpResponse::Ok().body(format!("Hello from index {0}", document.unwrap()))
+            // HttpResponse::TemporaryRedirect().header("Location", "/login").finish()
+        },
+        Err(_) => HttpResponse::NotFound().finish()
+    }
 }
 
 #[post("/get-shortener-url")]
 pub async fn hello_test(app_data: web::Data<crate::AppState>) -> impl Responder {
-    let result = app_data.service_container.url.get().await.unwrap();
-
-    HttpResponse::Ok().body(format!("Hello Test!!! {0}", result.unwrap()))
+    HttpResponse::Ok().body(format!("Hello Test!!!"))
 }

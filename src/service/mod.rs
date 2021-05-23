@@ -15,7 +15,7 @@ impl UrlService {
         self.collection.insert_one(doc! {"url": url}, None).await
     }
 
-    pub async fn get(&self) -> Result<Option<Document>, mongodb::error::Error> {
-        self.collection.find_one(doc! {}, None).await
+    pub async fn get(&self, key: &str) -> Result<Option<Document>, Error> {
+        self.collection.find_one(doc! {key: key}, None).await
     }
 }

@@ -2,7 +2,7 @@ use actix_web::{get, post, Responder, HttpResponse, web, HttpRequest};
 use crate::service::InsertUrlDto;
 
 #[get("/{id}")]
-pub async fn index(
+pub async fn find_url_and_redirect(
     req: HttpRequest,
     app_data: web::Data<crate::AppState>
 ) -> impl Responder {
@@ -13,8 +13,7 @@ pub async fn index(
             if document.is_none() {
                 return HttpResponse::NotFound().finish()
             }
-            HttpResponse::Ok().body(format!("Hello from index {0}", document.unwrap().url))
-            // HttpResponse::TemporaryRedirect().header("Location", "/login").finish()
+            HttpResponse::Found().header("Location", document.unwrap().url).finish()
         },
         Err(_) => HttpResponse::NotFound().finish()
     }

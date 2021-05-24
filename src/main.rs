@@ -8,7 +8,7 @@ mod controller;
 mod service;
 
 use crate::config::{get_web_service_config, get_mongodb_config};
-use crate::controller::{index, insert_url};
+use crate::controller::{find_url_and_redirect, insert_url};
 use crate::service::{UrlService, Url};
 
 pub struct ServiceContainer {
@@ -39,7 +39,7 @@ async fn main() -> std::io::Result<()> {
             .data(AppState { service_container })
             .route("/robots.txt", web::get().to(|| HttpResponse::NotFound()))
             .route("/favicon.ico", web::get().to(|| HttpResponse::NotFound()))
-            .service(index)
+            .service(find_url_and_redirect)
             .service(insert_url)
     })
     .bind(format!("{0}:{1}", host, port))?

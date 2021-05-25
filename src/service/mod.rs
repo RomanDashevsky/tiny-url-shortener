@@ -2,6 +2,7 @@ use mongodb::bson::{doc};
 use mongodb::{error::Error, Collection};
 use serde::{Deserialize, Serialize};
 use mongodb::results::DeleteResult;
+use nanoid::nanoid;
 
 #[derive(Clone)]
 pub struct UrlService {
@@ -81,22 +82,46 @@ impl UrlService {
     }
 
     async fn get_created_url(&self, url: &str) -> Result<Option<CreatedUrlDto>, Error> {
-        // TODO: implement generate new key logic
-        let key = "Afgr2";
+        let key_result = self.get_unique_key().await;
 
-        let raw_result = self.collection
-            .insert_one(Url {
-                url: url.to_string(),
-                key: key.to_string()
-            }, None)
-            .await;
+        match key_result {
+            Ok(key) => {
+                let raw_result = self.collection
+                    .insert_one(Url {
+                        url: url.to_string(),
+                        key: (*key).to_string()
+                    }, None)
+                    .await;
 
-        raw_result.map(|_| {
-            Some(CreatedUrlDto {
-                key: key.to_string(),
-                url: url.to_string(),
-                created: true,
-            })
-        })
+                raw_result.map(|_| {
+                    Some(CreatedUrlDto {
+                        url: url.to_string(),
+                        key,
+                        created: true,
+                    })
+                })
+            },
+            Err(err) => Result::Err(err)
+        }
+    }
+
+    async fn get_unique_key(&self) -> Result<String, Error> {
+        loop {
+            let key = nanoid!(8);
+            let mut has_unique_key = false;
+
+            let key_result = self.find_by_key(&key).await
+                .map(|url_data| {
+                    if url_data.is_none() {
+                        has_unique_key = true;
+                    }
+                    key
+                });
+
+            if has_unique_key {
+                return key_result;
+            }
+        }
+
     }
 }

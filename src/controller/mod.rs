@@ -29,6 +29,8 @@ pub async fn insert_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto
         return HttpResponse::NotFound().finish()
     }
 
+    // TODO: add validation for url
+
     let result = app_data.service_container.url.create(&insert_url_dto.url).await;
     match result {
         Ok(created_url_dto) => {

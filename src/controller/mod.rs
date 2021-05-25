@@ -25,8 +25,8 @@ pub async fn find_url_and_redirect(
 #[post("/api/insert-url")]
 pub async fn insert_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto>, app_data: web::Data<crate::AppState>) -> impl Responder {
     if !self::is_auth(&req) {
-        // TODO: add 403 error response
-        return HttpResponse::Forbidden().finish()
+        // TODO: add 404 error response
+        return HttpResponse::NotFound().finish()
     }
 
     let result = app_data.service_container.url.create(&insert_url_dto.url).await;

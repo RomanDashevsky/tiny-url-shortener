@@ -3,6 +3,7 @@ use mongodb::{error::Error, Collection};
 use serde::{Deserialize, Serialize};
 use mongodb::results::DeleteResult;
 use nanoid::nanoid;
+use std::env;
 
 #[derive(Clone)]
 pub struct UrlService {
@@ -16,7 +17,7 @@ pub struct InsertUrlDto {
 
 #[derive(Serialize)]
 pub struct CreatedUrlDto {
-    pub key: String,
+    pub raw_url: String,
     pub url: String,
     pub created: bool,
 }
@@ -72,8 +73,8 @@ impl UrlService {
             if document.is_some() {
                 let url_data: Url  = document.unwrap();
                 created_url_dto = Some(CreatedUrlDto {
-                    key: url_data.key,
-                    url: url_data.url,
+                    raw_url: url_data.url,
+                    url: self.get_shorted_url(&url_data.key),
                     created: false,
                 })
             }
@@ -95,8 +96,8 @@ impl UrlService {
 
                 raw_result.map(|_| {
                     Some(CreatedUrlDto {
-                        url: url.to_string(),
-                        key,
+                        raw_url: url.to_string(),
+                        url: self.get_shorted_url(&key),
                         created: true,
                     })
                 })
@@ -123,5 +124,13 @@ impl UrlService {
             }
         }
 
+    }
+
+    fn get_shorted_url(&self, key: &str) -> String {
+        let host = env::var("HOST").unwrap();
+        let port = env::var("PORT").unwrap();
+        let is_local_env = env::var("ENV_TYPE").unwrap() == "local";
+        let port_sub = if is_local_env && !port.is_empty() { format!(":{0}", port) }   else { "".to_string() };
+        format!("http://{0}{1}/{2}", host, port_sub, key)
     }
 }

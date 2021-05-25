@@ -1,6 +1,7 @@
 use mongodb::bson::{doc};
 use mongodb::{error::Error, Collection};
 use serde::{Deserialize, Serialize};
+use mongodb::results::DeleteResult;
 
 #[derive(Clone)]
 pub struct UrlService {
@@ -47,6 +48,10 @@ impl UrlService {
         }
 
         self.get_created_url(url).await
+    }
+
+    pub async fn delete(&self, url: &str) -> Result<DeleteResult, Error> {
+        self.collection.delete_one(doc! { "url": url }, None).await
     }
 
     pub async fn find_by_key(&self, key: &str) -> Result<Option<Url>, Error> {

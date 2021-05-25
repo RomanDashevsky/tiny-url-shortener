@@ -1,4 +1,4 @@
-use actix_web::{get, post, Responder, HttpResponse, web, HttpRequest};
+use actix_web::{get, post, delete, Responder, HttpResponse, web, HttpRequest};
 use crate::service::InsertUrlDto;
 use std::env;
 
@@ -22,7 +22,7 @@ pub async fn find_url_and_redirect(
     }
 }
 
-#[post("/api/insert-url")]
+#[post("/api/url")]
 pub async fn insert_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto>, app_data: web::Data<crate::AppState>) -> impl Responder {
     if !self::is_auth(&req) {
         // TODO: add 404 error response
@@ -37,6 +37,26 @@ pub async fn insert_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto
                 return HttpResponse::NotFound().finish()
             }
             HttpResponse::Ok().json(created_url_dto.unwrap())
+        },
+        Err(_) => {
+            // TODO: add 5xx error response
+            HttpResponse::InternalServerError().finish()
+        }
+    }
+}
+
+#[delete("/api/url")]
+pub async fn delete_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto>, app_data: web::Data<crate::AppState>) -> impl Responder {
+    if !self::is_auth(&req) {
+        // TODO: add 404 error response
+        return HttpResponse::NotFound().finish()
+    }
+
+    let result = app_data.service_container.url.delete(&insert_url_dto.url).await;
+    match result {
+        Ok(_) => {
+            // TODO: add deleted response
+            HttpResponse::Ok().finish()
         },
         Err(_) => {
             // TODO: add 5xx error response

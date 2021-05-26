@@ -1,6 +1,6 @@
 use actix_web::{get, post, delete, Responder, HttpResponse, web, HttpRequest};
+use url::{Url};
 use crate::service::InsertUrlDto;
-use std::env;
 
 #[get("/{id}")]
 pub async fn find_url_and_redirect(
@@ -17,16 +17,21 @@ pub async fn find_url_and_redirect(
             }
             HttpResponse::Found().header("Location", url_data.unwrap().url).finish()
         }
-        // TODO: add 404 html page
-        Err(_) => HttpResponse::NotFound().finish()
+        // TODO: add 5xx html page
+        Err(_) => HttpResponse::InternalServerError().finish()
     }
 }
 
 #[post("/url")]
-pub async fn insert_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto>, app_data: web::Data<crate::AppState>) -> impl Responder {
-    // TODO: add validation for url
+pub async fn insert_url(insert_url_dto: web::Json<InsertUrlDto>, app_data: web::Data<crate::AppState>) -> impl Responder {
+    let url = &insert_url_dto.url;
 
-    let result = app_data.service_container.url.create(&insert_url_dto.url).await;
+    if !is_valid_url(url) {
+        // TODO: add 400 error response
+        return HttpResponse::BadRequest().finish()
+    }
+
+    let result = app_data.service_container.url.create(url).await;
     match result {
         Ok(created_url_dto) => {
             if created_url_dto.is_none() {
@@ -43,7 +48,7 @@ pub async fn insert_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto
 }
 
 #[delete("/url")]
-pub async fn delete_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto>, app_data: web::Data<crate::AppState>) -> impl Responder {
+pub async fn delete_url(insert_url_dto: web::Json<InsertUrlDto>, app_data: web::Data<crate::AppState>) -> impl Responder {
     let result = app_data.service_container.url.delete(&insert_url_dto.url).await;
     match result {
         Ok(_) => {
@@ -55,4 +60,18 @@ pub async fn delete_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto
             HttpResponse::InternalServerError().finish()
         }
     }
+}
+
+fn is_valid_url(url: &str) -> bool {
+    let parsed_url_result = Url::parse(url);
+
+    if parsed_url_result.is_err() {
+        return false;
+    }
+
+    let parsed_url = parsed_url_result.unwrap();
+    let scheme = parsed_url.scheme();
+    parsed_url.has_host()
+        && (scheme == "http"
+        || scheme == "https")
 }

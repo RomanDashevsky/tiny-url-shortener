@@ -13,6 +13,8 @@ use crate::service::{UrlService, Url};
 use actix_web::dev::RequestHead;
 use std::env;
 
+// TODO: need to add logging logic (local, kebana)
+
 pub struct ServiceContainer {
     url: UrlService,
 }

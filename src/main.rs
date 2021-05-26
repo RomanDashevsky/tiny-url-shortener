@@ -1,4 +1,4 @@
-use actix_web::{App, HttpServer, HttpResponse, web};
+use actix_web::{App, HttpServer, HttpResponse, web, guard};
 use dotenv::dotenv;
 use mongodb::options::ClientOptions;
 use mongodb::{Client, Collection};
@@ -10,6 +10,8 @@ mod service;
 use crate::config::{get_web_service_config, get_mongodb_config};
 use crate::controller::{find_url_and_redirect, insert_url, delete_url};
 use crate::service::{UrlService, Url};
+use actix_web::dev::RequestHead;
+use std::env;
 
 pub struct ServiceContainer {
     url: UrlService,
@@ -42,6 +44,7 @@ async fn main() -> std::io::Result<()> {
             .service(find_url_and_redirect)
             .service(
                 web::scope("/api")
+                    .guard(guard::fn_guard(is_auth))
                     .service(insert_url)
                     .service(delete_url)
             )
@@ -57,4 +60,22 @@ async fn get_url_collection() -> Collection<Url> {
     let client = Client::with_options(client_options).unwrap();
     let db = client.database(&db_name);
     db.collection_with_type::<Url>("url")
+}
+
+fn is_auth(head: &RequestHead) -> bool {
+    let mut is_auth = false;
+    let token_header = head.headers.get("X-API-TOKEN");
+
+    let token = match token_header {
+        Some(header) => {
+            header.to_str().unwrap().to_string()
+        },
+        None => "".to_string()
+    };
+
+    if token == env::var("API_TOKEN").unwrap() {
+        is_auth = true
+    }
+
+    is_auth
 }

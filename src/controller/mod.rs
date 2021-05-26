@@ -22,7 +22,7 @@ pub async fn find_url_and_redirect(
     }
 }
 
-#[post("/api/url")]
+#[post("/url")]
 pub async fn insert_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto>, app_data: web::Data<crate::AppState>) -> impl Responder {
     if !self::is_auth(&req) {
         // TODO: add 404 error response
@@ -47,7 +47,7 @@ pub async fn insert_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto
     }
 }
 
-#[delete("/api/url")]
+#[delete("/url")]
 pub async fn delete_url(req: HttpRequest, insert_url_dto: web::Json<InsertUrlDto>, app_data: web::Data<crate::AppState>) -> impl Responder {
     if !self::is_auth(&req) {
         // TODO: add 404 error response

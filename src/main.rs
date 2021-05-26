@@ -40,8 +40,11 @@ async fn main() -> std::io::Result<()> {
             .route("/robots.txt", web::get().to(|| HttpResponse::NotFound()))
             .route("/favicon.ico", web::get().to(|| HttpResponse::NotFound()))
             .service(find_url_and_redirect)
-            .service(insert_url)
-            .service(delete_url)
+            .service(
+                web::scope("/api")
+                    .service(insert_url)
+                    .service(delete_url)
+            )
     })
     .bind(format!("{0}:{1}", host, port))?
     .run()

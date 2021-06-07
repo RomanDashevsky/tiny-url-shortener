@@ -127,10 +127,10 @@ impl UrlService {
     }
 
     fn get_shorted_url(&self, key: &str) -> String {
-        let host = env::var("HOST").unwrap();
+        let host = env::var("PUBLIC_HOST").unwrap();
         let port = env::var("PORT").unwrap();
         let is_local_env = env::var("ENV_TYPE").unwrap() == "local";
-        let port_sub = if is_local_env && !port.is_empty() { format!(":{0}", port) }   else { "".to_string() };
+        let port_sub = if is_local_env && !port.is_empty() { format!(":{0}", port) } else { "".to_string() };
         format!("http://{0}{1}/{2}", host, port_sub, key)
     }
 }

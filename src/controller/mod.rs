@@ -36,7 +36,7 @@ pub async fn insert_url(insert_url_dto: web::Json<InsertUrlDto>, app_data: web::
         Ok(created_url_dto) => {
             if created_url_dto.is_none() {
                 // TODO: add 5xx error response
-                HttpResponse::InternalServerError().finish()
+                return HttpResponse::InternalServerError().finish();
             }
             HttpResponse::Ok().json(created_url_dto.unwrap())
         },

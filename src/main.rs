@@ -2,6 +2,8 @@ use actix_web::{App, HttpServer, HttpResponse, web, guard};
 use dotenv::dotenv;
 use mongodb::options::ClientOptions;
 use mongodb::{Client, Collection};
+use log::LevelFilter;
+use log::{info};
 
 mod config;
 mod controller;
@@ -31,10 +33,13 @@ pub struct AppState {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+    simple_logging::log_to_file("./server.log", LevelFilter::Info);
 
     let (host, port) = get_web_service_config();
 
     let url_collection = get_url_collection().await;
+
+    info!("Server started with host: {0}, and port: {1}", host, port);
 
     HttpServer::new(move || {
         let service_container = ServiceContainer::new(UrlService::new(url_collection.clone()));
